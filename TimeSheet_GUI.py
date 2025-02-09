@@ -422,10 +422,19 @@ class EditEntry(tk.Frame):
             T = pd.to_datetime(date2.get())
             aa = make_df([[act.get(), F, T]])
             d = update_edit_saves(aa)
-            table_tail(self, 3, True, int(index.get()))
+            table_tail(self, 4, True, int(index.get()))
 
         def click_del():
             print(0)
+            if index.get() != 'Index':
+                d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
+                idx = int(index.get())
+                print(idx)
+                d1_ = d_.drop(idx)
+                d1_ = d1_.reset_index(drop=True)
+                d = update_edit_saves(d1_)
+                table_tail(self, 4, True, int(index.get()))
+
 
         def set_edit(self):
             if index.get() != 'Index':
