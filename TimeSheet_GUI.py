@@ -406,6 +406,20 @@ class EditEntry(tk.Frame):
         widget_Tab(self, controller)
         act, date1, date2, index = tk.StringVar(self), tk.StringVar(self), tk.StringVar(self), tk.StringVar(self)
 
+
+        def getINDEX():
+            d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
+            print(len(d_['Activity'].to_numpy()))
+            return list(range(len(d_['Activity'].to_numpy())))
+        def refreshINDEX():
+            index.set('')
+            index_ent['menu'].delete(0, 'end')
+
+            # Insert list of new options (tk._setit hooks them up to var)
+            for idx in getINDEX():
+                network_select['menu'].add_command(label=idx, command=tk._setit(index, idx))
+
+        INDEX = getINDEX()
         def update_edit_saves(df):
             d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
             ind = int(index.get())
@@ -422,6 +436,7 @@ class EditEntry(tk.Frame):
             T = pd.to_datetime(date2.get())
             aa = make_df([[act.get(), F, T]])
             d = update_edit_saves(aa)
+            INDEX = getINDEX()
             table_tail(self, 4, True, int(index.get()))
 
         def click_del():
@@ -432,8 +447,11 @@ class EditEntry(tk.Frame):
                 print(idx)
                 d1_ = d_.drop(idx)
                 d1_ = d1_.reset_index(drop=True)
-                d = update_edit_saves(d1_)
+                #refreshINDEX()
+                save_csv(d1_, dr_new['DATA'] + 'TimeSheet.csv')
+                save_csv(d1_, dr_new['CHANGE_LOG'] + dt.datetime.now().strftime('TimeSheet-%y%m%d-%H%M%S.csv'))
                 table_tail(self, 4, True, int(index.get()))
+
 
 
         def set_edit(self):
@@ -448,10 +466,9 @@ class EditEntry(tk.Frame):
         def createEdit():
             rahmen = tk.Frame(master=self, bg='magenta')
             rahmen.grid(row=2, column=0, padx='0', pady='5', sticky='w')
-            d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
-            OPTIONS_INDEX = list(range(len(d_['Activity'].to_numpy())))
+
             index.set('Index')
-            index_ent = tk.OptionMenu(rahmen, index, *OPTIONS_INDEX, command=set_edit)
+            index_ent = tk.OptionMenu(rahmen, index, *INDEX, command=set_edit)
             index_ent.pack(side='left')
             label = tk.Label(rahmen, text="Activity")
             label.pack(side='left')
@@ -473,10 +490,9 @@ class EditEntry(tk.Frame):
         def deleteEntry():
             rahmen = tk.Frame(master=self, bg='magenta')
             rahmen.grid(row=3, column=0, padx='0', pady='5', sticky='w')
-            d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
-            OPTIONS_INDEX = list(range(len(d_['Activity'].to_numpy())))
+
             index.set('Index')
-            index_ent = tk.OptionMenu(rahmen, index, *OPTIONS_INDEX, command=set_edit)
+            index_ent = tk.OptionMenu(rahmen, index, *INDEX, command=set_edit)
             index_ent.pack(side='left')
             button = tk.Button(rahmen, text="Delete", command=click_del)
             button.pack(side='left')
