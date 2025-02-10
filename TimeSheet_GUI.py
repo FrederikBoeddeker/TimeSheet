@@ -411,13 +411,12 @@ class EditEntry(tk.Frame):
             d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
             print(len(d_['Activity'].to_numpy()))
             return list(range(len(d_['Activity'].to_numpy())))
-        def refreshINDEX():
-            index.set('')
-            index_ent['menu'].delete(0, 'end')
+        def refreshINDEX(w):
+            w['menu'].delete(0, 'end')
 
             # Insert list of new options (tk._setit hooks them up to var)
             for idx in getINDEX():
-                network_select['menu'].add_command(label=idx, command=tk._setit(index, idx))
+                w['menu'].add_command(label=idx, command=tk._setit(index, idx))
 
         INDEX = getINDEX()
         def update_edit_saves(df):
@@ -431,15 +430,15 @@ class EditEntry(tk.Frame):
             save_csv(d_, dr_new['DATA'] + 'TimeSheet.csv')
             save_csv(d_, dr_new['CHANGE_LOG'] + dt.datetime.now().strftime('TimeSheet-%y%m%d-%H%M%S.csv'))
 
-        def click_edit():
+        def click_edit(w):
             F = pd.to_datetime(date1.get())
             T = pd.to_datetime(date2.get())
             aa = make_df([[act.get(), F, T]])
             d = update_edit_saves(aa)
-            INDEX = getINDEX()
+            refreshINDEX(w)
             table_tail(self, 4, True, int(index.get()))
 
-        def click_del():
+        def click_del(w):
             print(0)
             if index.get() != 'Index':
                 d_ = load_csv(dr_new['DATA'] + 'TimeSheet.csv')
@@ -447,7 +446,7 @@ class EditEntry(tk.Frame):
                 print(idx)
                 d1_ = d_.drop(idx)
                 d1_ = d1_.reset_index(drop=True)
-                #refreshINDEX()
+                refreshINDEX(w)
                 save_csv(d1_, dr_new['DATA'] + 'TimeSheet.csv')
                 save_csv(d1_, dr_new['CHANGE_LOG'] + dt.datetime.now().strftime('TimeSheet-%y%m%d-%H%M%S.csv'))
                 table_tail(self, 4, True, int(index.get()))
@@ -476,7 +475,7 @@ class EditEntry(tk.Frame):
             act.set(OPTIONS[0])
             w = tk.OptionMenu(rahmen, act, *OPTIONS)
             w.pack(side='left')
-            button = tk.Button(rahmen, text="Enter", command=click_edit)
+            button = tk.Button(rahmen, text="Enter", command=lambda:click_edit(index_ent))
             button.pack(side='left')
             label1 = tk.Label(rahmen, text="From")
             label1.pack(side='left')
@@ -492,9 +491,9 @@ class EditEntry(tk.Frame):
             rahmen.grid(row=3, column=0, padx='0', pady='5', sticky='w')
 
             index.set('Index')
-            index_ent = tk.OptionMenu(rahmen, index, *INDEX, command=set_edit)
+            index_ent = tk.OptionMenu(rahmen, index, *INDEX)
             index_ent.pack(side='left')
-            button = tk.Button(rahmen, text="Delete", command=click_del)
+            button = tk.Button(rahmen, text="Delete", command=lambda:click_del(index_ent))
             button.pack(side='left')
 
         createEdit()
@@ -511,6 +510,31 @@ class Settings(tk.Frame):
         label.grid(row=0, column=0, columnspan=2)
 
         widget_Tab(self, controller)
+
+        action, text = tk.StringVar(self), tk.StringVar(self)
+        def click_add():
+            print(1)
+        def click_del():
+            print(2)
+        def createAdd():
+            rahmen = tk.Frame(master=self, bg='magenta')
+            rahmen.grid(row=2, column=0, padx='0', pady='5', sticky='w')
+            ACTION = ['Activity', 'Location']
+            ent = tk.OptionMenu(rahmen, action, *ACTION)
+            ent.pack(side='left')
+            entry1 = tk.Entry(rahmen, textvariable=text, width=10)
+            entry1.pack(side='left')
+            button1 = tk.Button(rahmen, text="Add", command=click_add)
+            button1.pack(side='left')
+            button2 = tk.Button(rahmen, text="Delete", command=click_del)
+            button2.pack(side='left')
+
+        createAdd()
+
+
+
+
+
 
 
 pages = ['StartPage', 'Timer', 'ManualEntry', 'EditEntry', 'Settings']
