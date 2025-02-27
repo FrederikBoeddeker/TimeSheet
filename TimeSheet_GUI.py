@@ -391,101 +391,101 @@ class EditEntry(tk.Frame):
         label.grid(row=0, column=0, columnspan=2)
 
         widget_Tab(self, controller)
-        self.createEdit(act, date1, date2, index)
-        self.deleteEntry(index)
+        self.createEdit()
+        self.deleteEntry()
 
     def getINDEX(self):
         d_ = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv')
         return list(range(len(d_['Activity'].to_numpy())))
 
-    def refreshINDEX(self, w, index):
+    def refreshINDEX(self, w):
         w['menu'].delete(0, 'end')
 
         # Insert list of new options (tk._setit hooks them up to var)
         for idx in self.getINDEX():
-            w['menu'].add_command(label=idx, command=tk._setit(index, idx))
+            w['menu'].add_command(label=idx, command=tk._setit(self.index, idx))
 
 
-    def update_edit_saves(self, list):
+    def update_edit_saves(self):
         d_ = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv')
-        ind = int(list[3])
-        d_.at[ind, 'Activity'] = list[0]
-        d_.at[ind, 'To'] = list[1]
-        d_.at[ind, 'From'] = list[2]
-        d_.at[ind, 'Duration'] = pd.to_datetime(list[2]) - pd.to_datetime(list[1])
+        ind = int(self.index.get())
+        d_.at[ind, 'Activity'] = self.act.get()
+        d_.at[ind, 'To'] = self.date2.get()
+        d_.at[ind, 'From'] = self.date1.get()
+        d_.at[ind, 'Duration'] = pd.to_datetime(self.date2.get()) - pd.to_datetime(self.date1.get())
 
         back.saveCsv(d_, dr_new['DATA'] + 'TimeSheet.csv')
         back.saveCsv(d_, dr_new['CHANGE_LOG'] + dt.datetime.now().strftime('TimeSheet-%y%m%d-%H%M%S.csv'))
 
-    def click_edit(self, w, index,date1, date2, act):
-        F = pd.to_datetime(date1.get())
-        T = pd.to_datetime(date2.get())
-        list = [act.get(), F, T, index.get()]
-        d = self.update_edit_saves(list)
-        self.refreshINDEX(w, index)
-        table_tail(self, 4, True, int(index.get()))
+    def click_edit(self, w):
+        F = pd.to_datetime(self.date1.get())
+        T = pd.to_datetime(self.date2.get())
+        list = [self.act.get(), F, T]
+        self.update_edit_saves()
+        self.refreshINDEX(w)
+        table_tail(self, 4, True, int(self.index.get()))
 
-    def click_del(self, w, index):
+    def click_del(self, w):
         print(0)
-        if index.get() != 'Index':
+        if self.index.get() != 'Index':
             d_ = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv')
-            idx = int(index.get())
+            idx = int(self.index.get())
             print(idx)
             d1_ = d_.drop(idx)
             d1_ = d1_.reset_index(drop=True)
             back.saveCsv(d1_, dr_new['DATA'] + 'TimeSheet.csv')
             back.saveCsv(d1_, dr_new['CHANGE_LOG'] + dt.datetime.now().strftime('TimeSheet-%y%m%d-%H%M%S.csv'))
-            self.refreshINDEX(w, index)
+            self.refreshINDEX(w)
             table_tail(self, 4, True, int(idx))
 
 
 
 
 
-    def createEdit(self, act, date1, date2, index):
+    def createEdit(self):
         INDEX = self.getINDEX()
 
         rahmen = tk.Frame(master=self, bg='magenta')
         rahmen.grid(row=2, column=0, padx='0', pady='5', sticky='w')
         #index = dict('index')
-        index.set('Index')
-        index_ent = tk.OptionMenu(rahmen, index, *INDEX, command=lambda x:self.setEdit(index, date1, date2, act))
+        self.index.set('Index')
+        index_ent = tk.OptionMenu(rahmen, self.index, *INDEX, command=lambda x:self.setEdit())
         index_ent.pack(side='left')
         label = tk.Label(rahmen, text="Activity")
         label.pack(side='left')
         OPTIONS = ["Jan", "Feb", "Mar"]  # etc
-        act.set(OPTIONS[0])
-        w = tk.OptionMenu(rahmen, act, *OPTIONS)
+        self.act.set(OPTIONS[0])
+        w = tk.OptionMenu(rahmen, self.act, *OPTIONS)
         w.pack(side='left')
-        button = tk.Button(rahmen, text="Enter", command=lambda:self.click_edit(index_ent, index, date1, date2, act))
+        button = tk.Button(rahmen, text="Enter", command=lambda:self.click_edit(index_ent))
         button.pack(side='left')
         label1 = tk.Label(rahmen, text="From")
         label1.pack(side='left')
-        entry1 = tk.Entry(rahmen, textvariable=date1, width=10)
+        entry1 = tk.Entry(rahmen, textvariable=self.date1, width=10)
         entry1.pack(side='left')
         label2 = tk.Label(rahmen, text="To")
         label2.pack(side='left')
-        entry2 = tk.Entry(rahmen, textvariable=date2, width=10)
+        entry2 = tk.Entry(rahmen, textvariable=self.date2, width=10)
         entry2.pack(side='left')
 
-    def setEdit(self, index, date1, date2, act):
-        print(index.get())
-        if index.get() != 'Index':
+    def setEdit(self):
+        print(self.index.get())
+        if self.index.get() != 'Index':
             d_ = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv')
-            ind = int(index.get())
+            ind = int(self.index.get())
             print(ind)
-            act.set(d_['Activity'].to_numpy()[ind])
-            date1.set(d_['From'].to_numpy()[ind])
-            date2.set(d_['To'].to_numpy()[ind])
+            self.act.set(d_['Activity'].to_numpy()[ind])
+            self.date1.set(d_['From'].to_numpy()[ind])
+            self.date2.set(d_['To'].to_numpy()[ind])
 
-    def deleteEntry(self, index):
+    def deleteEntry(self):
         rahmen = tk.Frame(master=self, bg='magenta')
         rahmen.grid(row=3, column=0, padx='0', pady='5', sticky='w')
 
-        index.set('Index')
-        index_ent = tk.OptionMenu(rahmen, index, *self.getINDEX())
+        self.index.set('Index')
+        index_ent = tk.OptionMenu(rahmen, self.index, *self.getINDEX())
         index_ent.pack(side='left')
-        button = tk.Button(rahmen, text="Delete", command=lambda:self.click_del(index_ent, index))
+        button = tk.Button(rahmen, text="Delete", command=lambda:self.click_del(index_ent))
         button.pack(side='left')
 
 
