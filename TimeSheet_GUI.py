@@ -301,10 +301,6 @@ class Timer(tk.Frame):
         entry2.pack(side='left')
 
 
-
-        # -------------------- Display --------------------
-
-
 class ManualEntry(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -319,7 +315,6 @@ class ManualEntry(tk.Frame):
         label.grid(row=0, column=0, columnspan=2)
 
         controller.widget_Tab( self)
-        #act, date1, date2 = tk.StringVar(self), tk.StringVar(self), tk.StringVar(self)
 
         self.createManualTimer()
 
@@ -358,12 +353,6 @@ class ManualEntry(tk.Frame):
         entry2 = tk.Entry(rahmen, textvariable=self.date2, width=10)
         self.date2.set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
         entry2.pack(side='left')
-
-
-
-
-
-
 
 class EditEntry(tk.Frame):
 
