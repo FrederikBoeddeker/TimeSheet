@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import datetime as dt
 
 dr = {}
 dr_new = {}
@@ -29,7 +30,7 @@ class Backend():
 
     def updateSaves(self, aa):
         if os.path.exists(dr_new['DATA'] + 'TimeSheet.csv'):
-            d_ = self.load_csv(dr_new['DATA'] + 'TimeSheet.csv')
+            d_ = self.loadCsv(dr_new['DATA'] + 'TimeSheet.csv')
         else:
             d_ = pd.DataFrame(
                 columns=['Activity', 'From', 'To', 'Office', 'Location', 'Notes', 'Duration'])

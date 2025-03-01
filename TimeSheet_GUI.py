@@ -82,30 +82,52 @@ class My_GUI(tk.Tk):
         print(page_name)
         frame.tkraise()
 
-def table_tail(self, position, edit=False, ind=-3):
-    table = tk.Frame(master=self, bg='blue')
-    table.grid(row=position, column=0, padx='0', pady='5', sticky='w')
-    if edit:
-        df = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv').loc[ind - 2:ind + 2]
-    else:
-        df = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv').tail()
-    arr = df.to_numpy()
-    col = list(df.columns)
+    def table_tail(self, frame, position, edit=False, ind=-3):
+        table = tk.Frame(master=frame, bg='blue')
+        table.grid(row=position, column=0, padx='0', pady='5', sticky='w')
+        if edit:
+            df = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv').loc[ind - 2:ind + 2]
+        else:
+            df = back.loadCsv(dr_new['DATA'] + 'TimeSheet.csv').tail()
+        arr = df.to_numpy()
+        col = list(df.columns)
 
-    for i in range(len(col)):
-        e = tk.Label(table, text=col[i])
-        e.grid(row=3, column=i, sticky='nsew')
-    for i in range(5):
-        for j in range(len(col)):
-            e = tk.Label(table, text=str(arr[i, j]))
-            e.grid(row=i + 4, column=j, sticky='nsew')
+        for i in range(len(col)):
+            e = tk.Label(table, text=col[i])
+            e.grid(row=3, column=i, sticky='nsew')
+        for i in range(5):
+            for j in range(len(col)):
+                e = tk.Label(table, text=str(arr[i, j]))
+                e.grid(row=i + 4, column=j, sticky='nsew')
+
+    def widget_Tab(self, frame):
+        rahmen1 = tk.Frame(master=frame, bg='magenta')
+        rahmen1.grid(row=1, column=0, padx='0', pady='5', sticky='w')
+
+        button1 = tk.Button(rahmen1, text="Start Page",
+                            command=lambda: self.show_frame("StartPage"))
+        button1.pack(side='left')
+
+        button2 = tk.Button(rahmen1, text="Timer",
+                            command=lambda: self.show_frame("Timer"))
+        button2.pack(side='left')
+
+        button3 = tk.Button(rahmen1, text="Manual Entry",
+                            command=lambda: self.show_frame("ManualEntry"))
+        button3.pack(side='left')
+
+        button4 = tk.Button(rahmen1, text="Edit Entry",
+                            command=lambda: self.show_frame("EditEntry"))
+        button4.pack(side='left')
+
+        button5 = tk.Button(rahmen1, text="Settings",
+                            command=lambda: self.show_frame("Settings"))
+        button5.pack(side='left')
 
 
 class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
-        def refresh():
-            controller.table_tail(self, 3)
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -113,13 +135,14 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Welcome to....", font=controller.title_font)
         label.grid(row=0, column=0, columnspan=2)
 
-        widget_Tab(self, controller)
+        controller.widget_Tab( self)
 
-        button = tk.Button(self, text="Refresh", command=refresh)
+        button = tk.Button(self, text="Refresh", command=self.refresh)
         button.grid(row=2, column=0, sticky='w')
-        table_tail(self, 3)
+        controller.table_tail(self, 3)
 
-
+    def refresh(self):
+        self.controller.table_tail(self, 3)
 
 
 
@@ -134,166 +157,169 @@ class Timer(tk.Frame):
 
         ### ------------ Tab widget --------------
 
-        widget_Tab(self, controller)
+        controller.widget_Tab(self)
 
         ### --------- Timer Loops ------------------
         #Activity = ['Working', 'Sleeping', 'Drinks', 'Refresh', 'Discussion']
 
-
-
-        def loop_1():
-            while button[0]['text'] == 'Stop':
-                date2[0].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[0].get()))[7:-7])
-                time.sleep(1)
-
-        def loop_2():
-            while button[1]['text'] == 'Stop':
-                date2[1].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[1].get()))[7:-7])
-                time.sleep(1)
-
-        def loop_3():
-            while button[2]['text'] == 'Stop':
-                date2[2].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[2].get()))[7:-7])
-                time.sleep(1)
-
-        def start_click_1():
-            '''
-            Function for automatic time logging
-            '''
-            if button[0]['text'] == 'Start':
-
-                date1[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                date2[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[0].config(text='Elapsed Time')
-                button[0].config(text='Stop')
-
-                threading.Thread(target=loop_1).start()
-
-            else:
-                date2[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[0].config(text='To')
-                button[0].config(text='Start')
-
-                F = pd.to_datetime(date1[0].get())
-                T = pd.to_datetime(date2[0].get())
-
-                date2[0].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[0].get()))[7:-7])
-                date1[0].set(' ')
-                aa = back.makeDf([[act[0].get(), F, T]])
-
-                d = back.updateSaves(aa)
-                table_tail(self, 5)
-
-        def start_click_2():
-            '''
-            Function for automatic time logging
-            '''
-            if button[1]['text'] == 'Start':
-
-                date1[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                date2[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[1].config(text='Elapsed Time')
-                button[1].config(text='Stop')
-
-                threading.Thread(target=loop_2).start()
-
-            else:
-                date2[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[1].config(text='To')
-                button[1].config(text='Start')
-
-                F = pd.to_datetime(date1[1].get())
-                T = pd.to_datetime(date2[1].get())
-
-                date2[1].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[1].get()))[7:-7])
-                date1[1].set(' ')
-                aa = back.makeDf([[act[1].get(), F, T]])
-
-                d = back.updateSaves(aa)
-                table_tail(self, 5)
-
-        def start_click_3():
-            '''
-            Function for automatic time logging
-            '''
-            if button[2]['text'] == 'Start':
-
-                date1[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                date2[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[2].config(text='Elapsed Time')
-                button[2].config(text='Stop')
-
-                threading.Thread(target=loop_3).start()
-
-            else:
-                date2[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                label2[2].config(text='To')
-                button[2].config(text='Start')
-
-                F = pd.to_datetime(date1[2].get())
-                T = pd.to_datetime(date2[2].get())
-
-                date2[2].set(str(dt.datetime.today() -
-                                 pd.to_datetime(date1[2].get()))[7:-7])
-                date1[2].set(' ')
-                aa = back.makeDf([[act[2].get(), F, T]])
-
-                d = back.updateSaves(aa)
-                table_tail(self, 5)
-
         rahmen = {}
         label = {}
         w = {}
-        button = {}
+        self.button = {}
         label1 = {}
-        label2 = {}
+        self.label2 = {}
         entry1 = {}
         entry2 = {}
-        act = {}
-        date1 = {}
-        date2 = {}
-        click_commands = [start_click_1, start_click_2, start_click_3]
+        self.act = {}
+        self.date1 = {}
+        self.date2 = {}
+        clickCommands = [self.start_click_1, self.start_click_2, self.start_click_3]
 
-        def createTimer(enum):
+        self.createTimer(0, clickCommands)
+        self.createTimer(1, clickCommands)
+        self.createTimer(2, clickCommands)
+        controller.table_tail(self, 5)
 
-            rahmen[enum] = tk.Frame(master=self, bg='magenta')
-            rahmen[enum].grid(row=2 + enum, column=0, padx='0', pady='5', sticky='w')
+    def loop_1(self):
+        while self.button[0]['text'] == 'Stop':
+            self.date2[0].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[0].get()))[7:-7])
+            time.sleep(1)
 
-            label[enum] = tk.Label(rahmen[enum], text="Activity")
-            label[enum].pack(side='left')
+    def loop_2(self):
+        while self.button[1]['text'] == 'Stop':
+            self.date2[1].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[1].get()))[7:-7])
+            time.sleep(1)
 
-            OPTIONS = ["Jan", "Feb", "Mar"]  # etc
+    def loop_3(self):
+        while self.button[2]['text'] == 'Stop':
+            self.date2[2].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[2].get()))[7:-7])
+            time.sleep(1)
 
-            act[enum] = tk.StringVar(self)
-            act[enum].set(OPTIONS[0])
-            w[enum] = tk.OptionMenu(rahmen[enum], act[enum], *OPTIONS)
-            w[enum].pack(side='left')
-            button[enum] = tk.Button(rahmen[enum], text="Start", command=click_commands[enum])
-            button[enum].pack(side='left')
-            label1[enum] = tk.Label(rahmen[enum], text="From")
-            label1[enum].pack(side='left')
-            date1[enum] = tk.StringVar()
-            entry1[enum] = tk.Entry(rahmen[enum], textvariable=date1[enum], width=10)
-            date1[enum].set("Default")
-            entry1[enum].pack(side='left')
+    def start_click_1(self):
+        '''
+        Function for automatic time logging
+        '''
+        if self.button[0]['text'] == 'Start':
 
-            label2[enum] = tk.Label(rahmen[enum], text="To")
-            label2[enum].pack(side='left')
+            self.date1[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.date2[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[0].config(text='Elapsed Time')
+            self.button[0].config(text='Stop')
 
-            date2[enum] = tk.StringVar()
-            entry2[enum] = tk.Entry(rahmen[enum], textvariable=date2[enum], width=10)
-            date2[enum].set("Default")
-            entry2[enum].pack(side='left')
+            threading.Thread(target=self.loop_1).start()
 
-        createTimer(0)
-        createTimer(1)
-        createTimer(2)
-        table_tail(self, 5)
+        else:
+            self.date2[0].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[0].config(text='To')
+            self.button[0].config(text='Start')
+
+            F = pd.to_datetime(self.date1[0].get())
+            T = pd.to_datetime(self.date2[0].get())
+
+            self.date2[0].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[0].get()))[7:-7])
+            self.date1[0].set(' ')
+            aa = back.makeDf([[self.act[0].get(), F, T]])
+
+            d = back.updateSaves(aa)
+            self.controller.table_tail(self, 5)
+
+    def start_click_2(self):
+        '''
+        Function for automatic time logging
+        '''
+        if self.button[1]['text'] == 'Start':
+
+            self.date1[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.date2[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[1].config(text='Elapsed Time')
+            self.button[1].config(text='Stop')
+
+            threading.Thread(target=self.loop_2).start()
+
+        else:
+            self.date2[1].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[1].config(text='To')
+            self.button[1].config(text='Start')
+
+            F = pd.to_datetime(self.date1[1].get())
+            T = pd.to_datetime(self.date2[1].get())
+
+            self.date2[1].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[1].get()))[7:-7])
+            self.date1[1].set(' ')
+            aa = back.makeDf([[self.act[1].get(), F, T]])
+
+            d = back.updateSaves(aa)
+            self.controller.table_tail(self, 5)
+
+    def start_click_3(self):
+        '''
+        Function for automatic time logging
+        '''
+        if self.button[2]['text'] == 'Start':
+
+            self.date1[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.date2[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[2].config(text='Elapsed Time')
+            self.button[2].config(text='Stop')
+
+            threading.Thread(target=self.loop_3).start()
+
+        else:
+            self.date2[2].set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+            self.label2[2].config(text='To')
+            self.button[2].config(text='Start')
+
+            F = pd.to_datetime(self.date1[2].get())
+            T = pd.to_datetime(self.date2[2].get())
+
+            self.date2[2].set(str(dt.datetime.today() -
+                             pd.to_datetime(self.date1[2].get()))[7:-7])
+            self.date1[2].set(' ')
+            aa = back.makeDf([[self.act[2].get(), F, T]])
+
+            d = back.updateSaves(aa)
+            self.controller.table_tail(self, 5)
+
+
+
+    def createTimer(self, enum, clickCommands):
+
+        rahmen = tk.Frame(master=self, bg='magenta')
+        rahmen.grid(row=2 + enum, column=0, padx='0', pady='5', sticky='w')
+
+        label = tk.Label(rahmen, text="Activity")
+        label.pack(side='left')
+
+        OPTIONS = ["Jan", "Feb", "Mar"]  # etc
+
+        self.act[enum] = tk.StringVar()
+        self.act[enum].set(OPTIONS[0])
+        w = tk.OptionMenu(rahmen, self.act[enum], *OPTIONS)
+        w.pack(side='left')
+        self.button[enum] = tk.Button(rahmen, text="Start", command=clickCommands[enum])
+        self.button[enum].pack(side='left')
+
+        label1 = tk.Label(rahmen, text="From")
+        label1.pack(side='left')
+        self.date1[enum] = tk.StringVar()
+        self.date1[enum].set("Default")
+        entry1 = tk.Entry(rahmen, textvariable=self.date1[enum], width=10)
+        entry1.pack(side='left')
+
+        self.label2[enum] = tk.Label(rahmen, text="To")
+        self.label2[enum].pack(side='left')
+
+        self.date2[enum] = tk.StringVar()
+        self.date2[enum].set("Default")
+        entry2 = tk.Entry(rahmen, textvariable=self.date2[enum], width=10)
+        entry2.pack(side='left')
+
+
 
         # -------------------- Display --------------------
 
@@ -304,74 +330,58 @@ class ManualEntry(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
+        self.act = tk.StringVar()
+        self.date1 = tk.StringVar()
+        self.date2 = tk.StringVar()
+
         label = tk.Label(self, text="Welcome to...." + pages[2], font=controller.title_font)
         label.grid(row=0, column=0, columnspan=2)
 
-        widget_Tab(self, controller)
-        act, date1, date2 = tk.StringVar(self), tk.StringVar(self), tk.StringVar(self)
+        controller.widget_Tab( self)
+        #act, date1, date2 = tk.StringVar(self), tk.StringVar(self), tk.StringVar(self)
 
-        def click_manual():
-            F = pd.to_datetime(date1.get())
-            T = pd.to_datetime(date2.get())
+        self.createManualTimer()
 
-            aa = back.makeDf([[act.get(), F, T]])
+    def click_manual(self):
+        F = pd.to_datetime(self.date1.get())
+        T = pd.to_datetime(self.date2.get())
 
-            d = back.updateSaves(aa)
-            table_tail(self, 3)
+        aa = back.makeDf([[self.act.get(), F, T]])
 
-        def createManualTimer():
-            rahmen = tk.Frame(master=self, bg='magenta')
-            rahmen.grid(row=2, column=0, padx='0', pady='5', sticky='w')
+        d = back.updateSaves(aa)
+        self.controller.table_tail(self, 3)
 
-            label = tk.Label(rahmen, text="Activity")
-            label.pack(side='left')
+    def createManualTimer(self):
+        rahmen = tk.Frame(master=self, bg='magenta')
+        rahmen.grid(row=2, column=0, padx='0', pady='5', sticky='w')
 
-            OPTIONS = ["Jan", "Feb", "Mar"]  # etc
+        label = tk.Label(rahmen, text="Activity")
+        label.pack(side='left')
 
-            act.set(OPTIONS[0])
-            w = tk.OptionMenu(rahmen, act, *OPTIONS)
-            w.pack(side='left')
-            button = tk.Button(rahmen, text="Enter", command=click_manual)
-            button.pack(side='left')
-            label1 = tk.Label(rahmen, text="From")
-            label1.pack(side='left')
-            entry1 = tk.Entry(rahmen, textvariable=date1, width=10)
-            date1.set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-            entry1.pack(side='left')
+        OPTIONS = ["Jan", "Feb", "Mar"]  # etc
 
-            label2 = tk.Label(rahmen, text="To")
-            label2.pack(side='left')
+        self.act.set(OPTIONS[0])
+        w = tk.OptionMenu(rahmen, self.act, *OPTIONS)
+        w.pack(side='left')
+        button = tk.Button(rahmen, text="Enter", command=self.click_manual)
+        button.pack(side='left')
+        label1 = tk.Label(rahmen, text="From")
+        label1.pack(side='left')
+        entry1 = tk.Entry(rahmen, textvariable=self.date1, width=10)
+        self.date1.set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+        entry1.pack(side='left')
 
-            entry2 = tk.Entry(rahmen, textvariable=date2, width=10)
-            date2.set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-            entry2.pack(side='left')
+        label2 = tk.Label(rahmen, text="To")
+        label2.pack(side='left')
 
-        createManualTimer()
+        entry2 = tk.Entry(rahmen, textvariable=self.date2, width=10)
+        self.date2.set(dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+        entry2.pack(side='left')
 
 
-def widget_Tab(frame, controller):
-    rahmen1 = tk.Frame(master=frame, bg='magenta')
-    rahmen1.grid(row=1, column=0, padx='0', pady='5', sticky='w')
 
-    button1 = tk.Button(rahmen1, text="Start Page",
-                        command=lambda: controller.show_frame("StartPage"))
-    button1.pack(side='left')
 
-    button2 = tk.Button(rahmen1, text="Timer",
-                        command=lambda: controller.show_frame("Timer"))
-    button2.pack(side='left')
 
-    button3 = tk.Button(rahmen1, text="Manual Entry",
-                        command=lambda: controller.show_frame("ManualEntry"))
-    button3.pack(side='left')
-
-    button4 = tk.Button(rahmen1, text="Edit Entry",
-                        command=lambda: controller.show_frame("EditEntry"))
-    button4.pack(side='left')
-
-    button5 = tk.Button(rahmen1, text="Settings",
-                        command=lambda: controller.show_frame("Settings"))
-    button5.pack(side='left')
 
 
 class EditEntry(tk.Frame):
@@ -390,7 +400,7 @@ class EditEntry(tk.Frame):
         label = tk.Label(self, text="Welcome to...." + pages[3], font=controller.title_font)
         label.grid(row=0, column=0, columnspan=2)
 
-        widget_Tab(self, controller)
+        controller.widget_Tab( self)
         self.createEdit()
         self.deleteEntry()
 
@@ -423,7 +433,7 @@ class EditEntry(tk.Frame):
         list = [self.act.get(), F, T]
         self.update_edit_saves()
         self.refreshINDEX(w)
-        table_tail(self, 4, True, int(self.index.get()))
+        self.controller.table_tail(self, 4, True, int(self.index.get()))
 
     def click_del(self, w):
         print(0)
@@ -500,7 +510,7 @@ class Settings(tk.Frame):
         label = tk.Label(self, text="Welcome to...." + pages[4], font=controller.title_font)
         label.grid(row=0, column=0, columnspan=2)
 
-        widget_Tab(self, controller)
+        controller.widget_Tab( self)
 
         action, text = tk.StringVar(self), tk.StringVar(self)
         self.createAdd(action, text)
