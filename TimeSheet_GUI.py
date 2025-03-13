@@ -123,7 +123,7 @@ class My_GUI(tk.Tk):
 class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
-        self.rows = 0
+        self.rows = 1
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
@@ -150,6 +150,12 @@ class Timer(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.parent = parent
+        header = tk.Frame(master=self, bg='blue')
+        header.grid(row=0, column=0, padx='0', pady='5', sticky='e')
+        b = tk.Button(header, text="Refresh", command=self.refresh)
+        b.pack(side='right')
+        self.dropLOC = {}
+        self.dropACT = {}
         label = tk.Label(self, text="Welcome to...." + pages[1], font=controller.title_font)
         label.grid(row=1, column=0, columnspan=2)
 
@@ -171,7 +177,24 @@ class Timer(tk.Frame):
         self.createTimer(0, clickCommands)
         self.createTimer(1, clickCommands)
         self.createTimer(2, clickCommands)
-        controller.table_tail(self, 5)
+        controller.table_tail(self, 6)
+    def refresh(self):
+        ACTIVITY = back.getItem(dr['SETTINGS'], 'Activity')  # etc
+        LOCATION = back.getItem(dr['SETTINGS'], 'Location')
+        print(1)
+        self.dropACT[0]['menu'].delete(0, 'end')
+        for i in range(3):
+            print(i)
+            #w['menu'].delete(0, 'end')
+            self.dropACT[i]['menu'].delete(0, 'end')
+            self.dropLOC[i]['menu'].delete(0, 'end')
+            # Insert list of new options (tk._setit hooks them up to var)
+            for idx in back.getItem(dr['SETTINGS'], 'Activity'):
+                #w['menu'].add_command(label=idx, command=tk._setit(self.index, idx))
+                self.dropACT[i]['menu'].add_command(label=idx, command=tk._setit(self.activ[i], idx))
+            for idx in back.getItem(dr['SETTINGS'], 'Location'):
+                self.dropLOC[i]['menu'].add_command(label=idx, command=tk._setit(self.Loca[i], idx))
+
 
     def loop_1(self, button):
         while button['text'] == 'Stop':
@@ -217,7 +240,7 @@ class Timer(tk.Frame):
             self.From[0].set(' ')
 
             d = back.updateSaves(df)
-            self.controller.table_tail(self, 5)
+            self.controller.table_tail(self, 6)
 
     def start_click_2(self, button, label2):
         '''
@@ -243,7 +266,7 @@ class Timer(tk.Frame):
                                pd.to_datetime(self.From[1].get()))[7:-7])
             self.From[1].set(' ')
             d = back.updateSaves(df)
-            self.controller.table_tail(self, 5)
+            self.controller.table_tail(self, 6)
 
     def start_click_3(self, button, label2):
         '''
@@ -271,10 +294,7 @@ class Timer(tk.Frame):
             self.From[2].set(' ')
 
             d = back.updateSaves(df)
-            self.controller.table_tail(self, 5)
-
-    def clickNotes(self):
-        print(1)
+            self.controller.table_tail(self, 6)
 
     def createTimer(self, enum, clickCommands):
 
@@ -289,8 +309,8 @@ class Timer(tk.Frame):
 
         self.activ[enum] = tk.StringVar()
         self.activ[enum].set(OPTIONS[0])
-        w = tk.OptionMenu(rahmen, self.activ[enum], *OPTIONS)
-        w.pack(side='left')
+        self.dropACT[enum] = tk.OptionMenu(rahmen, self.activ[enum], *OPTIONS)
+        self.dropACT[enum].pack(side='left')
 
 
         label1 = tk.Label(rahmen, text="From")
@@ -318,8 +338,8 @@ class Timer(tk.Frame):
         w1 = tk.OptionMenu(rahmen, self.Office[enum], *OFFICE)
         w1.pack(side='left')
 
-        w2 = tk.OptionMenu(rahmen, self.Loca[enum], *LOCATIONS)
-        w2.pack(side='left')
+        self.dropLOC[enum] = tk.OptionMenu(rahmen, self.Loca[enum], *LOCATIONS)
+        self.dropLOC[enum].pack(side='left')
 
         self.notes[enum] = StringVar()
         self.notes[enum].set('test string')
@@ -369,12 +389,27 @@ class ManualEntry(tk.Frame):
         self.Loca = tk.StringVar()
         self.notes = tk.StringVar()
 
+        header = tk.Frame(master=self, bg='blue')
+        header.grid(row=0, column=0, padx='0', pady='5', sticky='e')
+        b = tk.Button(header, text="Refresh", command=self.refresh)
+        b.pack(side='right')
+        self.dropLOC = 0
+        self.dropACT = 0
+
         label = tk.Label(self, text="Welcome to...." + pages[2], font=controller.title_font)
-        label.grid(row=0, column=1, columnspan=2)
+        label.grid(row=1, column=0, columnspan=2)
 
         controller.widget_Tab( self,2)
 
         self.createManualTimer()
+    def refresh(self):
+        self.dropACT['menu'].delete(0, 'end')
+        self.dropLOC['menu'].delete(0, 'end')
+
+        for idx in back.getItem(dr['SETTINGS'], 'Activity'):
+            self.dropACT['menu'].add_command(label=idx, command=tk._setit(self.activ, idx))
+        for idx in back.getItem(dr['SETTINGS'], 'Location'):
+            self.dropLOC['menu'].add_command(label=idx, command=tk._setit(self.Loca, idx))
 
     def click_manual(self):
         df = back.makeDf([[self.activ.get(), pd.to_datetime(self.From.get()), pd.to_datetime(self.To.get()),
@@ -393,8 +428,8 @@ class ManualEntry(tk.Frame):
         LOCATION = back.getItem(dr['SETTINGS'], 'Location')
 
         self.activ.set(OPTIONS[0])
-        w = tk.OptionMenu(rahmen, self.activ, *OPTIONS)
-        w.pack(side='left')
+        self.dropACT = tk.OptionMenu(rahmen, self.activ, *OPTIONS)
+        self.dropACT.pack(side='left')
 
         label1 = tk.Label(rahmen, text="From")
         label1.pack(side='left')
@@ -414,8 +449,8 @@ class ManualEntry(tk.Frame):
         w1 = tk.OptionMenu(rahmen, self.Office, *OFFICE)
         w1.pack(side='left')
 
-        w2 = tk.OptionMenu(rahmen, self.Loca, *LOCATION)
-        w2.pack(side='left')
+        self.dropLOC = tk.OptionMenu(rahmen, self.Loca, *LOCATION)
+        self.dropLOC.pack(side='left')
 
         self.notes = StringVar()
         self.notes.set('test string')
@@ -449,12 +484,28 @@ class EditEntry(tk.Frame):
         self.Loca = tk.StringVar()
         self.notes = tk.StringVar()
 
+        header = tk.Frame(master=self, bg='blue')
+        header.grid(row=0, column=0, padx='0', pady='5', sticky='e')
+        b = tk.Button(header, text="Refresh", command=self.refresh)
+        b.pack(side='right')
+        self.dropLOC = 0
+        self.dropACT = 0
+
         label = tk.Label(self, text="Welcome to...." + pages[3], font=controller.title_font)
         label.grid(row=1, column=0, columnspan=2)
 
         controller.widget_Tab( self,2)
         self.createEdit()
         self.deleteEntry()
+
+    def refresh(self):
+        self.dropACT['menu'].delete(0, 'end')
+        self.dropLOC['menu'].delete(0, 'end')
+
+        for idx in back.getItem(dr['SETTINGS'], 'Activity'):
+            self.dropACT['menu'].add_command(label=idx, command=tk._setit(self.activ, idx))
+        for idx in back.getItem(dr['SETTINGS'], 'Location'):
+            self.dropLOC['menu'].add_command(label=idx, command=tk._setit(self.Loca, idx))
 
     def getINDEX(self):
         d_ = back.loadCsv(dr['DATA'] + 'TimeSheet.csv')
@@ -520,8 +571,8 @@ class EditEntry(tk.Frame):
         index_ent.pack(side='left')
         OPTIONS = ["Jan", "Feb", "Mar"]  # etc
         self.activ.set(OPTIONS[0])
-        w = tk.OptionMenu(rahmen, self.activ, *OPTIONS)
-        w.pack(side='left')
+        self.dropACT = tk.OptionMenu(rahmen, self.activ, *OPTIONS)
+        self.dropACT.pack(side='left')
 
         label1 = tk.Label(rahmen, text="From")
         label1.pack(side='left')
@@ -537,8 +588,8 @@ class EditEntry(tk.Frame):
         w1 = tk.OptionMenu(rahmen, self.Office, *OFFICE)
         w1.pack(side='left')
 
-        w2 = tk.OptionMenu(rahmen, self.Loca, *LOCATION)
-        w2.pack(side='left')
+        self.dropLOC = tk.OptionMenu(rahmen, self.Loca, *LOCATION)
+        self.dropLOC.pack(side='left')
 
         self.notes = StringVar()
         self.notes.set('test string')
@@ -584,11 +635,6 @@ class Settings(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         self.controller = controller
-        self.loca
-
-        header = tk.Frame(master=self, bg='blue')
-        header.grid(row=0, column=0, padx='0', pady='5', sticky='w')
-
 
         label = tk.Label(self, text="Welcome to...." + pages[4], font=controller.title_font)
         label.grid(row=1, column=0, columnspan=2)
@@ -628,12 +674,7 @@ class Settings(tk.Frame):
         button2 = tk.Button(rahmen, text="Delete", command=lambda: self.clickDel(action, text))
         button2.pack(side='left')
 
-    def refresh(self):
-        w['menu'].delete(0, 'end')
 
-        # Insert list of new options (tk._setit hooks them up to var)
-        for idx in self.getINDEX():
-            w['menu'].add_command(label=idx, command=tk._setit(self.index, idx))
 
 
 
