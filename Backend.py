@@ -23,7 +23,7 @@ for k in dr_new:
 
 class Backend():
     def makeDf(self, lst):
-        columns = 'Activity', 'From', 'To'
+        columns = 'Activity', 'From', 'To', 'Office', 'Location', 'Notes'
         a = pd.DataFrame(lst, columns=columns)
         a['Duration'] = a['To'] - a['From']
         return a
@@ -96,4 +96,5 @@ class Backend():
     def setLocation(self, loc, path):
         self.savefile(path+'Location.txt', loc)
 
-
+    def saveNotes(self, notes):
+        print(1)
