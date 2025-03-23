@@ -1,23 +1,13 @@
 from tkinter import *
 from tkinter import font as tkfont
-import pandas as pd
-import numpy as np
 import tkinter as tk
 import os
-import sys
-import socket
-import platform
 import datetime as dt
-import glob
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import seaborn as sns
+
 
 import time
 import threading
-import warnings
 from Backend import Backend
 
 back = Backend()
@@ -39,7 +29,7 @@ class My_GUI(tk.Tk):
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
         self.initial()
-
+        
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
